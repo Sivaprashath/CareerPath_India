@@ -14,7 +14,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { session } } = await supabase.auth.getSession();
+      let session = null;
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          await supabase.auth.signOut();
+          router.push("/login");
+          return;
+        }
+        session = data.session;
+      } catch (err) {
+        await supabase.auth.signOut();
+        router.push("/login");
+        return;
+      }
+
       if (!session) { router.push("/login"); return; }
       setUser(session.user);
       try {

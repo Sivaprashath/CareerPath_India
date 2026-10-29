@@ -8,15 +8,13 @@ export async function POST(req) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama3.2:3b",   // ← hardcoded directly, no env needed
+        model: "llama3.2:3b",
         prompt: prompt,
         stream: false,
       }),
     });
 
-    const text = await ollamaRes.text(); // read as text first
-    console.log("Ollama raw response:", text); // you'll see this in terminal
-
+    const text = await ollamaRes.text();
     const data = JSON.parse(text);
     return NextResponse.json({ reply: data.response });
 

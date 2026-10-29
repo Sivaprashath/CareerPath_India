@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 async function createClient() {
-  const cookieStore = await cookies(); // ✅ await is required in Next.js 15
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -24,7 +24,6 @@ async function createClient() {
   );
 }
 
-// POST — Save a new result
 export async function POST(req) {
   try {
     const supabase = await createClient();
@@ -55,7 +54,6 @@ export async function POST(req) {
   }
 }
 
-// GET — Fetch all saved results for logged-in user
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -80,7 +78,6 @@ export async function GET() {
   }
 }
 
-// DELETE — Delete a specific result by id
 export async function DELETE(req) {
   try {
     const supabase = await createClient();

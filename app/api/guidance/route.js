@@ -12,12 +12,11 @@ export async function POST(req) {
         prompt: prompt,
         stream: false,
         format: "json",
-        // In your Ollama API call, add these options:
-options: {
-  temperature: 0.3,
-  num_predict: 4096,    // ← increase this from default
-  num_ctx: 8192,        // ← increase context window
-}
+        options: {
+          temperature: 0.3,
+          num_predict: 4096,
+          num_ctx: 8192,
+        },
       }),
     });
 
@@ -33,7 +32,7 @@ options: {
 
     return NextResponse.json(JSON.parse(cleaned));
   } catch (error) {
-    console.error("❌ Ollama Error:", error.message);
+    console.error("Ollama Error:", error.message);
     return NextResponse.json(
       { error: "Make sure Ollama is running! Run: ollama run llama3.2:3b" },
       { status: 500 }

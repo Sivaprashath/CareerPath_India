@@ -1,9 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
 
-// ── Quiz Questions ─────────────────────────────────────────
 const QUIZ_QUESTIONS = [
   { q: "Your friend is stuck on a maths problem. What do you do?", options: [
     { text: "Solve it step-by-step logically", type: "Analytical" },
@@ -62,7 +60,6 @@ const QUIZ_QUESTIONS = [
   ]},
 ];
 
-// ── Personality Info ───────────────────────────────────────
 const PERSONALITY_INFO = {
   Analytical: { emoji: "🧠", color: "#4f8ef7", desc: "You love logic, data and problem solving. You are built for engineering, technology, mathematics and science careers.", careers: ["Software Engineer","Data Scientist","CA / Finance Analyst","IIT / NIT Graduate"] },
   Creative:   { emoji: "🎨", color: "#f87171", desc: "You thrive on imagination and self-expression. Design, media, architecture and arts are your natural spaces.", careers: ["UX/UI Designer","Architect","Filmmaker","Fashion Designer"] },
@@ -71,7 +68,6 @@ const PERSONALITY_INFO = {
   Explorer:   { emoji: "🔭", color: "#22d3ee", desc: "You are curious and love discovering the unknown. Research, science and exploration are where you shine.", careers: ["Scientist / Researcher","Biotechnologist","Archaeologist","PhD Scholar"] },
 };
 
-// ── Exam Dates (Updated 2026) ──────────────────────────────
 const EXAM_DATES = [
   { name: "JEE Main 2026",     date: "2026-04-28", icon: "⚙️",  color: "#4f8ef7", for: ["Analytical","Explorer"] },
   { name: "NEET UG 2026",      date: "2026-05-03", icon: "🏥",  color: "#34d399", for: ["Helper"] },
@@ -85,7 +81,6 @@ const EXAM_DATES = [
   { name: "UGC NET 2026",      date: "2026-06-15", icon: "🧑‍🏫", color: "#22d3ee", for: ["Explorer","Helper"] },
 ];
 
-// ── Study Schedules ────────────────────────────────────────
 const STUDY_SCHEDULES = {
   Analytical: [
     { time:"5:30 AM", activity:"Wake up & light exercise", icon:"🌅" },
@@ -160,7 +155,6 @@ const STUDY_SCHEDULES = {
   ],
 };
 
-// ── Career Tree ────────────────────────────────────────────
 const TREE = {
   question: "What is your current education level?", icon: "🎓",
   options: [
@@ -233,7 +227,6 @@ const TREE = {
   ],
 };
 
-// ── Score helpers ──────────────────────────────────────────
 function calculateMatchScore(course, studentProfile) {
   if (!studentProfile) return null;
   let score = 60;
@@ -261,7 +254,6 @@ function getScoreColor(score) {
   return "#f87171";
 }
 
-// ── Fetch Guidance ─────────────────────────────────────────
 async function fetchGuidance(opt, journey, studentProfile) {
   const journeyText = journey.map(j => `${j.question} → ${j.answer}`).join("\n");
   const profileText = studentProfile
@@ -311,7 +303,6 @@ Rules:
   return await res.json();
 }
 
-// ── Save as PDF ────────────────────────────────────────────
 function saveAsPDF(guidanceData, studentProfile, selectedOpt, journey) {
   const name = studentProfile?.name || "Student";
   const date = new Date().toLocaleDateString("en-IN", { day:"numeric", month:"long", year:"numeric" });
@@ -393,7 +384,6 @@ function saveAsPDF(guidanceData, studentProfile, selectedOpt, journey) {
   if (win) win.focus();
 }
 
-// ── Supabase DB Helpers ────────────────────────────────────
 async function dbSaveProfile(userId, profile) {
   await supabase.from("user_profiles").upsert({
     user_id:     userId,
@@ -433,11 +423,8 @@ async function dbLoadUserData(userId) {
     .eq("user_id", userId).single();
   return data;
 }
-// ── User Likes DB Helpers ──────────────────────────────────
-// ── User Likes DB Helpers ──────────────────────────────────
 
 async function dbSaveLike(userId, userName, item) {
-  // First check if this course is already liked by this user
   const { data: existing } = await supabase
     .from("user_likes")
     .select("id")
@@ -446,7 +433,6 @@ async function dbSaveLike(userId, userName, item) {
     .filter("item_data->>name", "eq", item.name)
     .maybeSingle();
 
-  // Only insert if it doesn't already exist
   if (!existing) {
     const { error } = await supabase.from("user_likes").insert({
       user_id:   userId,
@@ -464,7 +450,7 @@ async function dbRemoveLike(userId, itemName) {
     .delete()
     .eq("user_id", userId)
     .eq("item_type", "course")
-    .filter("item_data->>name", "eq", itemName);   // ✅ Correct filter syntax
+    .filter("item_data->>name", "eq", itemName);
 
   if (error) console.error("dbRemoveLike error:", error.message);
 }
@@ -480,7 +466,6 @@ async function dbLoadLikes(userId) {
   return (data || []).map(row => row.item_data);
 }
 
-// ── Login Screen Component ─────────────────────────────────
 function LoginScreen() {
   const [mode, setMode]         = useState("login");
   const [email, setEmail]       = useState("");
@@ -525,7 +510,6 @@ function LoginScreen() {
         borderRadius:24, padding:"44px 40px",
         boxShadow:"0 24px 80px rgba(0,0,0,0.5)"
       }}>
-        {/* Logo */}
         <div style={{ textAlign:"center", marginBottom:32 }}>
           <div style={{
             width:60, height:60, borderRadius:18, margin:"0 auto 16px",
@@ -541,7 +525,6 @@ function LoginScreen() {
           </div>
         </div>
 
-        {/* Tab toggle */}
         <div style={{
           display:"flex", background:"rgba(255,255,255,0.05)", borderRadius:12,
           padding:4, marginBottom:28, border:"1px solid rgba(255,255,255,0.08)"
@@ -557,7 +540,6 @@ function LoginScreen() {
           ))}
         </div>
 
-        {/* Google OAuth */}
         <button onClick={handleGoogle} disabled={loading} style={{
           width:"100%", padding:"13px 0", borderRadius:12,
           background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
@@ -581,7 +563,6 @@ function LoginScreen() {
           <div style={{ flex:1, height:1, background:"rgba(255,255,255,0.08)" }} />
         </div>
 
-        {/* Email form */}
         <form onSubmit={handleEmail} style={{ display:"flex", flexDirection:"column", gap:14 }}>
           <input
             type="email" placeholder="Email address" required
@@ -628,7 +609,6 @@ function LoginScreen() {
     </div>
   );
 }
-// ── Exam Countdown Component ───────────────────────────────
 function ExamCountdown({ personality }) {
   const today = new Date();
   const relevant = EXAM_DATES.filter(e => !personality || e.for.includes(personality));
@@ -721,7 +701,6 @@ function ExamCountdown({ personality }) {
   );
 }
 
-// ── Study Planner Modal ────────────────────────────────────
 function StudyPlannerModal({ personality, onClose }) {
   const schedule = STUDY_SCHEDULES[personality] || STUDY_SCHEDULES["Analytical"];
   const info     = PERSONALITY_INFO[personality]  || PERSONALITY_INFO["Analytical"];
@@ -773,7 +752,6 @@ function StudyPlannerModal({ personality, onClose }) {
   );
 }
 
-// ── Aptitude Quiz Component ────────────────────────────────
 function AptitudeQuiz({ onComplete }) {
   const [current, setCurrent]   = useState(0);
   const [scores, setScores]     = useState({ Analytical:0, Creative:0, Leader:0, Helper:0, Explorer:0 });
@@ -866,7 +844,6 @@ function AptitudeQuiz({ onComplete }) {
   );
 }
 
-// ── Compare Modal ──────────────────────────────────────────
 function CompareModal({ courses, studentProfile, onClose }) {
   const [a, b] = courses;
   const scoreA = calculateMatchScore(a, studentProfile);
@@ -874,7 +851,6 @@ function CompareModal({ courses, studentProfile, onClose }) {
   const winner = scoreA > scoreB ? "a" : scoreB > scoreA ? "b" : null;
 
   function Row({ label, va, vb, highlight }) {
-    // Helper to extract string from potential object arrays
     const extractString = (val) => {
       if (Array.isArray(val)) {
         return val.map(item => typeof item === 'object' && item !== null ? item.name || JSON.stringify(item) : item).join(", ") || "—";
@@ -962,7 +938,6 @@ function CompareModal({ courses, studentProfile, onClose }) {
   );
 }
 
-// ── ChatBot Component ──────────────────────────────────────
 function ChatBot({ studentProfile, guidanceData, onClose }) {
   const [messages, setMessages] = useState([
     {
@@ -1049,7 +1024,6 @@ Reply as plain text only — no JSON, no bullet points unless needed.`;
         overflow:"hidden", boxShadow:"0 24px 80px rgba(0,0,0,0.5)",
         animation:"fadeUp 0.3s ease both"
       }}>
-        {/* Header */}
         <div style={{ padding:"18px 20px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", gap:12, background:"linear-gradient(135deg,rgba(79,142,247,0.15),rgba(124,92,252,0.1))" }}>
           <div style={{ width:44, height:44, borderRadius:14, background:"linear-gradient(135deg,#4f8ef7,#7c5cfc)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🤖</div>
           <div>
@@ -1061,7 +1035,6 @@ Reply as plain text only — no JSON, no bullet points unless needed.`;
           </button>
         </div>
 
-        {/* Messages */}
         <div style={{ flex:1, overflowY:"auto", padding:"16px 16px 8px", display:"flex", flexDirection:"column", gap:12 }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display:"flex", justifyContent: msg.role==="user" ? "flex-end" : "flex-start" }}>
@@ -1098,7 +1071,6 @@ Reply as plain text only — no JSON, no bullet points unless needed.`;
           <div ref={bottomRef} />
         </div>
 
-        {/* Quick suggestions */}
         {messages.length <= 1 && (
           <div style={{ padding:"0 12px 10px", display:"flex", gap:6, flexWrap:"wrap" }}>
             {suggestions.map((s, i) => (
@@ -1110,7 +1082,6 @@ Reply as plain text only — no JSON, no bullet points unless needed.`;
           </div>
         )}
 
-        {/* Input */}
         <form onSubmit={sendMessage} style={{ padding:"12px 14px", borderTop:"1px solid var(--border)", display:"flex", gap:10 }}>
           <input
             value={input} onChange={e => setInput(e.target.value)}
@@ -1139,7 +1110,6 @@ Reply as plain text only — no JSON, no bullet points unless needed.`;
     </div>
   );
 }
-// ── Roadmap Timeline Component ─────────────────────────────
 function RoadmapTimeline({ roadmap }) {
   const colors = ["#4f8ef7","#22d3ee","#34d399","#f5c84a"];
   return (
@@ -1175,7 +1145,6 @@ function RoadmapTimeline({ roadmap }) {
   );
 }
 
-// ── Govt Exam Card ─────────────────────────────────────────
 function GovtExamCard({ exam }) {
   return (
     <div style={{
@@ -1206,7 +1175,6 @@ function GovtExamCard({ exam }) {
   );
 }
 
-// ── Scholarship Card ───────────────────────────────────────
 function ScholarshipCard({ s }) {
   const typeColor = s.type === "Central" ? "#4f8ef7" : s.type === "State" ? "#34d399" : "#f5c84a";
   return (
@@ -1230,14 +1198,11 @@ function ScholarshipCard({ s }) {
   );
 }
 
-// ── Course Card ────────────────────────────────────────────
-// ── Course Card ────────────────────────────────────────────
 function CourseCard({ course, studentProfile, onCompare, isInCompare, onLike, isLiked }) {
   const [expanded, setExpanded] = useState(false);
   const score = calculateMatchScore(course, studentProfile);
   const scoreColor = score ? getScoreColor(score) : "var(--accent)";
 
-  // Helper to safely render arrays that might contain objects
   const renderList = (items) => {
     if (!Array.isArray(items)) return "—";
     return items.map(item => typeof item === 'object' && item !== null ? item.name || JSON.stringify(item) : item).join(" • ");
@@ -1319,7 +1284,6 @@ function CourseCard({ course, studentProfile, onCompare, isInCompare, onLike, is
         </div>
       </div>
 
-      {/* Expanded details */}
       {expanded && (
         <div style={{ padding:"0 20px 20px", borderTop:"1px solid var(--border2)" }}>
           <div style={{ marginTop:14 }}>
@@ -1352,7 +1316,16 @@ function CourseCard({ course, studentProfile, onCompare, isInCompare, onLike, is
   );
 }
 
-// ── MAIN COMPONENT ─────────────────────────────────────────
+function findNodeFromJourney(journeySlice) {
+  let node = TREE;
+  for (const step of journeySlice) {
+    const match = node.options?.find(o => o.label === step.answer);
+    if (!match || !match.options) break;
+    node = match;
+  }
+  return node;
+}
+
 export default function CareerPathIndia() {
   const [journey, setJourney]                         = useState([]);
   const [currentNode, setCurrentNode]                 = useState(null);
@@ -1371,87 +1344,85 @@ export default function CareerPathIndia() {
   const [showLiked, setShowLiked]                     = useState(false);
   const [activeTab, setActiveTab]                     = useState("courses");
   const mainRef = useRef(null);
-  const initCalledRef = useRef(false); // ← ADD THIS
+  const initCalledRef = useRef(false);
 
-  // ── Auth + Data Loader ─────────────────────────────────
-    // Auth & Data Loader
   useEffect(() => {
     async function initApp(user) {
-  if (!user) { setPhase("login"); return; }
+      if (initCalledRef.current) return;
+      initCalledRef.current = true;
+      if (!user) { setPhase("login"); initCalledRef.current = false; return; }
 
-  setAuthUser(user);
+      setAuthUser(user);
 
-  const [savedProfile, savedData, savedLikes] = await Promise.all([
-    dbLoadProfile(user.id),
-    dbLoadUserData(user.id),
-    dbLoadLikes(user.id),
-  ]);
+      const [savedProfile, savedData, savedLikes] = await Promise.all([
+        dbLoadProfile(user.id),
+        dbLoadUserData(user.id),
+        dbLoadLikes(user.id),
+      ]);
 
-  // ── Restore liked items ──────────────────────────────
-  if (savedLikes?.length) setLikedItems(savedLikes);
+      if (savedLikes?.length) setLikedItems(savedLikes);
 
-  // ── No profile at all → fresh user → start quiz ─────
-  if (!savedProfile) {
-    setPhase("quiz");
-    return;
-  }
+      if (!savedProfile) {
+        setPhase("quiz");
+        initCalledRef.current = false;
+        return;
+      }
 
-  // ── Has profile → restore it ─────────────────────────
-  setStudentProfile(savedProfile);
+      setStudentProfile(savedProfile);
 
-  // ── Has completed guidance → go straight to results ──
-  if (savedData?.guidance) {
-    setGuidanceData(savedData.guidance);
-    setSelectedOpt(savedData.selectedopt || null);
-    setJourney(savedData.journey || []);
-    setPhase("results");   // ✅ Never asks questions again
-    return;
-  }
+      if (savedData?.guidance) {
+        setGuidanceData(savedData.guidance);
+        setSelectedOpt(savedData.selectedopt || null);
+        setJourney(savedData.journey || []);
+        setPhase("results");
+        initCalledRef.current = false;
+        return;
+      }
 
-  // ── Has a saved mid-journey (answered some but not done) ──
-  if (savedData?.journey?.length > 0 && savedData?.currentnode) {
-    setJourney(savedData.journey);
-    setCurrentNode(savedData.currentnode);
-    setPhase("question");  // ✅ Resume from where they left off
-    return;
-  }
+      if (savedData?.journey?.length > 0 && savedData?.currentnode) {
+        setJourney(savedData.journey);
+        setCurrentNode(savedData.currentnode);
+        setPhase("question");
+        initCalledRef.current = false;
+        return;
+      }
 
-  // ── Has profile but no journey yet → start from TREE ─
-  setCurrentNode(TREE);
-  setPhase("question");
-}
-    // ... rest of useEffect
-
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    initApp(session?.user || null);
-  });
-
-  const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-    // ✅ Only re-init on actual sign in/out, not on every token refresh
-    if (_e === "SIGNED_IN")  initApp(session?.user);
-    if (_e === "SIGNED_OUT") {
-      setAuthUser(null);
-      setPhase("login");
-      setStudentProfile(null);
-      setJourney([]);
-      setGuidanceData(null);
+      setCurrentNode(TREE);
+      setPhase("question");
+      initCalledRef.current = false;
     }
-    // ✅ Ignore TOKEN_REFRESHED and other events — they caused re-asking
-  });
 
-  return () => listener?.subscription?.unsubscribe();
-}, []);
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.warn("[page] Supabase session error:", error.message);
+        supabase.auth.signOut().finally(() => initApp(null));
+      } else {
+        initApp(data.session?.user || null);
+      }
+    });
 
-  // ── Handle Profile Complete ────────────────────────────
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (_e === "SIGNED_IN") { initCalledRef.current = false; initApp(session?.user); }
+      if (_e === "SIGNED_OUT") {
+        setAuthUser(null);
+        setPhase("login");
+        setStudentProfile(null);
+        setJourney([]);
+        setGuidanceData(null);
+        initCalledRef.current = false;
+      }
+    });
+
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
+
   async function handleProfileComplete(profile) {
     setStudentProfile(profile);
     if (profile) {
-      // --- SAVE LOCALLY ---
       localStorage.setItem("careerpath_profile", JSON.stringify(profile));
       
       if (authUser) {
         await dbSaveProfile(authUser.id, profile);
-        // Also save to userdata so initApp finds it
         await dbSaveUserData(authUser.id, { journey: [], guidance: null, selectedopt: null });
       }
     }
@@ -1459,8 +1430,6 @@ export default function CareerPathIndia() {
     setPhase("question");
   }
 
-  // ── Select Option ──────────────────────────────────────
-   // Select Option
  function selectOption(parentNode, opt) {
   const newJourney = [...journey, {
     question: parentNode.question,
@@ -1484,7 +1453,7 @@ export default function CareerPathIndia() {
             journey:      newJourney,
             guidance:     data,
             selectedopt:  opt,
-            currentnode:  null,   // ✅ clear currentnode when done
+            currentnode:  null,
             likeditems:   likedItems,
           });
         }
@@ -1497,11 +1466,10 @@ export default function CareerPathIndia() {
   } else if (opt.options) {
     setCurrentNode(opt);
     setPhase("question");
-    // ✅ Save mid-journey progress so reload resumes here
     if (authUser) {
       dbSaveUserData(authUser.id, {
         journey:     newJourney,
-        currentnode: opt,        // ← saves which question they're on
+        currentnode: opt,
         guidance:    null,
         selectedopt: null,
       });
@@ -1509,21 +1477,16 @@ export default function CareerPathIndia() {
   }
 }
 
-  // ── Toggle Like ────────────────────────────────────────
  async function toggleLike(item) {
   const exists = likedItems.some(i => i.name === item.name);
 
   if (exists) {
-    // Remove from state
     setLikedItems(prev => prev.filter(i => i.name !== item.name));
-    // Remove from DB
     if (authUser) {
       await dbRemoveLike(authUser.id, item.name);
     }
   } else {
-    // Add to state
     setLikedItems(prev => [...prev, item]);
-    // Save to DB with user_name  ✅
     if (authUser) {
       const userName = studentProfile?.name || authUser.email || "Unknown";
       await dbSaveLike(authUser.id, userName, item);
@@ -1531,7 +1494,6 @@ export default function CareerPathIndia() {
   }
 }
 
-  // ── Compare ────────────────────────────────────────────
   function toggleCompare(course) {
     setCompareList(prev => {
       if (prev.some(c => c.name === course.name)) return prev.filter(c => c.name !== course.name);
@@ -1540,15 +1502,16 @@ export default function CareerPathIndia() {
     });
   }
 
-  // ── Start Over ─────────────────────────────────────────
     async function startOver() {
-    localStorage.removeItem("careerpath_profile"); 
-    localStorage.removeItem("careerpath_journey"); // --- CLEAR JOURNEY TOO ---
-    
+    localStorage.removeItem("careerpath_profile");
+    localStorage.removeItem("careerpath_journey");
+
     if (authUser) {
-      await dbSaveUserData(authUser.id, { journey: [], guidance: null, selectedopt: null, likeditems: [] });
+      await Promise.all([
+        dbSaveUserData(authUser.id, { journey: [], guidance: null, selectedopt: null, likeditems: [] }),
+        supabase.from("user_profiles").delete().eq("user_id", authUser.id),
+      ]);
     }
-    // ... rest of startOver
     setLikedItems([]);
     setJourney([]);
     setGuidanceData(null);
@@ -1561,9 +1524,8 @@ export default function CareerPathIndia() {
     setPhase("quiz");
   }
 
-  // ── Sign Out ───────────────────────────────────────────
     async function signOut() {
-    localStorage.removeItem("careerpath_profile"); // --- CLEAR LOCAL DATA ---
+    localStorage.removeItem("careerpath_profile");
     await supabase.auth.signOut();
     setAuthUser(null);
     setPhase("login");
@@ -1572,7 +1534,6 @@ export default function CareerPathIndia() {
     setGuidanceData(null);
   }
 
-  // ── Profile Form ───────────────────────────────────────
   function ProfileForm({ detectedPersonality, onComplete }) {
     const [name,        setName]        = useState("");
     const [strengths,   setStrengths]   = useState("");
@@ -1650,7 +1611,6 @@ export default function CareerPathIndia() {
       </div>
     );
   }
-    // ── CSS Styles ─────────────────────────────────────────
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -1975,7 +1935,6 @@ export default function CareerPathIndia() {
     }
   `;
 
-  // ── Dashboard Component (inline) ──────────────────────
   function Dashboard() {
     const info        = PERSONALITY_INFO[studentProfile?.personality] || PERSONALITY_INFO["Analytical"];
     const courses     = guidanceData?.courses     || [];
@@ -1983,14 +1942,12 @@ export default function CareerPathIndia() {
     const scholarships= guidanceData?.scholarships|| [];
     const journey_len = journey.length;
 
-    // Bar chart data — match scores
     const barData = courses.slice(0,5).map(c => ({
       name:  c.name.length > 16 ? c.name.slice(0,16)+"…" : c.name,
       score: calculateMatchScore(c, studentProfile) || 70,
       color: getScoreColor(calculateMatchScore(c, studentProfile) || 70),
     }));
 
-    // Salary data
     const salaryData = courses.slice(0,5).map(c => ({
       name:   c.name.length > 14 ? c.name.slice(0,14)+"…" : c.name,
       salary: parseInt((c.avg_salary||"0").replace(/[^0-9]/g,"")) || 0,
@@ -2000,7 +1957,6 @@ export default function CareerPathIndia() {
     return (
       <div style={{ animation:"fadeUp 0.4s ease both" }}>
 
-        {/* Welcome Banner */}
         <div style={{
           background:"linear-gradient(135deg,rgba(79,142,247,0.15),rgba(124,92,252,0.1))",
           border:"1px solid rgba(79,142,247,0.2)",
@@ -2033,7 +1989,6 @@ export default function CareerPathIndia() {
           </div>
         </div>
 
-        {/* Stat Cards */}
         <div className="dashboard-grid">
           {[
             { icon:"🎯", label:"Career Path",    value: selectedOpt?.label || "—",          color:"#4f8ef7" },
@@ -2058,7 +2013,6 @@ export default function CareerPathIndia() {
           ))}
         </div>
 
-        {/* Match Score Bar Chart */}
         <div className="dash-bar-wrap">
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:"var(--text)", marginBottom:20 }}>
             📊 Course Match Scores
@@ -2083,7 +2037,6 @@ export default function CareerPathIndia() {
           </div>
         </div>
 
-        {/* Salary Chart */}
         <div className="dash-bar-wrap">
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:"var(--text)", marginBottom:20 }}>
             💰 Average Salary Comparison (LPA)
@@ -2112,7 +2065,6 @@ export default function CareerPathIndia() {
           </div>
         </div>
 
-        {/* Journey Path */}
         {journey.length > 0 && (
           <div className="dash-bar-wrap">
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:"var(--text)", marginBottom:16 }}>
@@ -2138,7 +2090,6 @@ export default function CareerPathIndia() {
           </div>
         )}
 
-        {/* Personality Breakdown */}
         <div className="dash-bar-wrap">
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:"var(--text)", marginBottom:16 }}>
             🧠 Personality Profile — {studentProfile?.personality}
@@ -2177,13 +2128,11 @@ export default function CareerPathIndia() {
       </div>
     );
   }
-    // ── RENDER ─────────────────────────────────────────────
   return (
     <>
       <style>{css}</style>
       <div className="cp-root">
 
-        {/* ── AUTH LOADING ── */}
         {phase === "auth_loading" && (
           <div className="cp-center">
             <div className="loading-card">
@@ -2196,10 +2145,8 @@ export default function CareerPathIndia() {
           </div>
         )}
 
-        {/* ── LOGIN ── */}
         {phase === "login" && <LoginScreen />}
 
-        {/* ── QUIZ ── */}
         {phase === "quiz" && (
           <>
             <nav className="cp-nav">
@@ -2219,7 +2166,6 @@ export default function CareerPathIndia() {
           </>
         )}
 
-        {/* ── PROFILE ── */}
         {phase === "profile" && (
           <>
             <nav className="cp-nav">
@@ -2237,7 +2183,6 @@ export default function CareerPathIndia() {
           </>
         )}
 
-        {/* ── QUESTION ── */}
         {phase === "question" && currentNode && (
           <>
             <nav className="cp-nav">
@@ -2258,7 +2203,6 @@ export default function CareerPathIndia() {
             <div className="cp-center">
               <div className="question-card">
 
-                {/* Welcome back banner */}
                 {studentProfile && (
                   <div style={{
                     background:"rgba(79,142,247,0.08)",
@@ -2279,7 +2223,6 @@ export default function CareerPathIndia() {
                   </div>
                 )}
 
-                {/* Journey breadcrumb */}
                 {journey.length > 0 && (
                   <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:20 }}>
                     {journey.map((j,i) => (
@@ -2293,7 +2236,6 @@ export default function CareerPathIndia() {
                   </div>
                 )}
 
-                {/* Question Icon */}
                 <div style={{
                   width:64, height:64, borderRadius:18, marginBottom:20,
                   background:"linear-gradient(135deg,rgba(79,142,247,0.15),rgba(124,92,252,0.1))",
@@ -2325,11 +2267,11 @@ export default function CareerPathIndia() {
                 {journey.length > 0 && (
                   <button className="profile-skip-btn" style={{ marginTop:18 }}
                     onClick={() => {
-                      const newJourney = journey.slice(0,-1);
+                      const newJourney = journey.slice(0, -1);
+                      const prevNode = newJourney.length === 0 ? TREE : findNodeFromJourney(newJourney);
                       setJourney(newJourney);
-                      setCurrentNode(newJourney.length === 0 ? TREE : currentNode);
+                      setCurrentNode(prevNode);
                       setPhase("question");
-                      window.location.reload();
                     }}
                   >
                     ← Go Back
@@ -2340,7 +2282,6 @@ export default function CareerPathIndia() {
           </>
         )}
 
-        {/* ── LOADING ── */}
         {phase === "loading" && (
           <>
             <nav className="cp-nav">
@@ -2374,7 +2315,6 @@ export default function CareerPathIndia() {
           </>
         )}
 
-        {/* ── RESULTS ── */}
         {phase === "results" && (
           <>
             <nav className="cp-nav">
@@ -2413,6 +2353,33 @@ export default function CareerPathIndia() {
                     ⇄ Compare ({compareList.length})
                   </button>
                 )}
+                {guidanceData && authUser && (
+                  <button className="cp-nav-btn primary"
+                    style={{ background:"linear-gradient(135deg,#34d399,#059669)" }}
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/save-result", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: studentProfile?.name || "Student",
+                            personality: studentProfile?.personality || "Explorer",
+                            journey,
+                            guidance: guidanceData,
+                            selected_option: selectedOpt?.label || "",
+                          }),
+                        });
+                        const json = await res.json();
+                        if (json.success) alert("✅ Report saved to your Dashboard!");
+                        else alert("⚠️ Save failed: " + (json.error || "Unknown error"));
+                      } catch(e) {
+                        alert("❌ Could not save. Check your connection.");
+                      }
+                    }}
+                  >
+                    💾 Save Report
+                  </button>
+                )}
                 {guidanceData && (
                   <button className="cp-nav-btn"
                     onClick={() => saveAsPDF(guidanceData, studentProfile, selectedOpt, journey)}>
@@ -2426,7 +2393,6 @@ export default function CareerPathIndia() {
 
             <div className="results-root" ref={mainRef}>
 
-              {/* Error Banner */}
               {error && (
                 <div style={{
                   background:"rgba(248,113,113,0.08)",
@@ -2438,7 +2404,6 @@ export default function CareerPathIndia() {
                 </div>
               )}
 
-              {/* Results Hero */}
               {guidanceData && (
                 <div className="results-hero">
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:16 }}>
@@ -2479,10 +2444,8 @@ export default function CareerPathIndia() {
                 </div>
               )}
 
-              {/* Exam Countdown */}
               <ExamCountdown personality={studentProfile?.personality} />
 
-              {/* Tabs */}
               <div className="tabs-bar">
                 {[
                   { key:"dashboard",    label:"📊 Dashboard"   },
@@ -2498,10 +2461,8 @@ export default function CareerPathIndia() {
                 ))}
               </div>
 
-              {/* ── TAB: DASHBOARD ── */}
               {activeTab === "dashboard" && <Dashboard />}
 
-              {/* ── TAB: COURSES ── */}
               {activeTab === "courses" && (
                 <div style={{ animation:"fadeUp 0.4s ease both" }}>
                   {compareList.length > 0 && (
@@ -2540,7 +2501,6 @@ export default function CareerPathIndia() {
                 </div>
               )}
 
-              {/* ── TAB: ROADMAP ── */}
               {activeTab === "roadmap" && (
                 <div style={{ animation:"fadeUp 0.4s ease both" }}>
                   <div style={{
@@ -2553,7 +2513,6 @@ export default function CareerPathIndia() {
                 </div>
               )}
 
-              {/* ── TAB: GOVT EXAMS ── */}
               {activeTab === "exams" && (
                 <div style={{ animation:"fadeUp 0.4s ease both" }}>
                   <div className="section-title">🏛️ Government Exams</div>
@@ -2565,7 +2524,6 @@ export default function CareerPathIndia() {
                 </div>
               )}
 
-              {/* ── TAB: SCHOLARSHIPS ── */}
               {activeTab === "scholarships" && (
                 <div style={{ animation:"fadeUp 0.4s ease both" }}>
                   <div className="section-title">🏆 Scholarships & Financial Aid</div>
@@ -2579,7 +2537,6 @@ export default function CareerPathIndia() {
 
             </div>
 
-            {/* ── LIKED PANEL ── */}
             {showLiked && (
               <div className="liked-panel">
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
@@ -2630,7 +2587,6 @@ export default function CareerPathIndia() {
               </div>
             )}
 
-            {/* ── CHAT FAB ── */}
             {!showChat && (
               <button className="chat-fab" onClick={() => setShowChat(true)} title="Ask AI Assistant">
                 🤖
@@ -2639,7 +2595,6 @@ export default function CareerPathIndia() {
           </>
         )}
 
-        {/* ── MODALS ── */}
         {showPlanner && studentProfile && (
           <StudyPlannerModal
             personality={studentProfile.personality}

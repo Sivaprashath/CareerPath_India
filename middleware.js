@@ -10,7 +10,7 @@ export async function middleware(req) {
     {
       cookies: {
         getAll() {
-          return req.cookies.getAll(); // ✅ middleware uses req.cookies (sync, no await needed)
+          return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
@@ -21,11 +21,28 @@ export async function middleware(req) {
     }
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  let session = null;
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.warn("[middleware] Supabase session error:", error.message);
+    } else {
+      session = data.session;
+    }
+  } catch (err) {
+    console.warn("[middleware] Failed to get session:", err.message);
+  }
+
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/dashboard") && !session) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    const redirectResponse = NextResponse.redirect(new URL("/login", req.url));
+    req.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith("sb-")) {
+        redirectResponse.cookies.delete(name);
+      }
+    });
+    return redirectResponse;
   }
 
   if ((pathname === "/login" || pathname === "/register") && session) {
